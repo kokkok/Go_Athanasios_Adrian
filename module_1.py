@@ -182,11 +182,6 @@ def get_top_3_most_expensive_by_school_year(level, school_year):
   SUC_list = max(SUC, key = SUC.get) 
   print "  3.", SUC_list, SUC[SUC_list] 
 
-  #print "5. Top 3 expensive SUC for BS level in school year 2010-2011"
-  #print "  1. Technological University of the Philippines"
-  #print "  2. Marikina Polytechnic College"
-  #print "  3. Apayao State College"
-
 #6 list all SUC who have increased their tuition fee from school year 2010-2011 to 2012-2013
 def all_suc_who_have_increased_tuition_fee():
   f = open('tuitionfeeperunitsucproglevel20102013.csv', 'r')
@@ -225,51 +220,78 @@ def all_suc_who_have_increased_tuition_fee():
 
 #7 which discipline has the highest passing rate?
 def get_discipline_with_highest_passing_rate_by_shool_year(school_year):
-  f = open('performancesucprclicensureexam20102012.csv', 'r')
-  SUC = {}
-  for index, line in enumerate(f):
-    row = line.split(',')
+  f = open('performancesucprclicensureexam20102012.csv','r')
+  data = csv.reader(f)
+  passers = {}
+  takers = {}
+  rate  = {}
+  if school_year == "2010":
+    col = 3
+  elif school_year == "2011":
+    col = 4
+  elif school_year == "2012":
+    col = 5
+  else:
+    print "7. ERROR! Not included in tha database"
+    return 0
+
+  for row in data:
     try:
-      if (school_year == '2010'):
-        passers = int(row[3])
-      elif (school_year == '2011'):
-        passers = int(row[4])
-      elif(school_year == '2012'):
-        passers = int(row[5])
-    except ValueError:
-      passers = 0
-   
-    if row [2] in SUC:
-       SUC[row[2]] += passers
-    else:
-       SUC[row[2]] = passers
-  del_SUC = []
-  for key in SUC:
-    if(SUC[key] == 0):
-      del_SUC.append(key)
-
-  for val in del_SUC:
-    del SUC[val]
-  f.close()
-
-  SUC_list = max(SUC, key = SUC.get)
-  #print "5. Top 3 expensive SUC for BS level in school year 2010-2011"
-  #print "  1.", SUC_list, SUC[SUC_list], "per unit"
-  #del SUC[SUC_list]
-  #SUC_list = max(SUC, key = SUC.get)
-  #print "  2.", SUC_list, SUC[SUC_list]
-  #del SUC[SUC_list]
-  #SUC_list = max(SUC, key = SUC.get) 
-  #print "  3.", SUC_list, SUC[SUC_list] 
-  print "7. The discipline which has the highest passing rate is"   
+      if passers.has_key(row[2]) and row[2] != "Total" and row[2] != "-":
+        passers[row[2]] += int(row[col])
+        takers[row[2]] += int(row[col+4])
+      else:
+        passers[row[2]] = int(row[col])
+        takers[row[2]] = int(row[col+4])
+    except Exception:
+      pass
+  for d in passers:
+    try:
+      if d != "-":
+        rate[d] = (float(takers[d] -  float(passers[d]))/float(takers[d]))
+    except Exception:
+      pass
+  print("7. The discipline which has the highest passing rate is %s") % ((sorted(rate.items(), key=lambda (n,m): (-m,n)))[0][0])
+  
 
 #8 list top 3 SUC with the most passing rate by discipline by school year
 def get_top_3_suc_performer_by_discipline_by_year(discipline, school_year):
-  print "8. Top 3  SUC with highest passing rate in Accountancy for school year 2010-2011"
-  #print "  1. Technological University of the Philippines"
-  #print "  2. Marikina Polytechnic College"
-  #print "  3. Apayao State College"
+  f = open('performancesucprclicensureexam20102012.csv','r')
+  data = csv.reader(f)
+  passers = {}
+  takers = {}
+  rate  = {}
+  if school_year == "2010":
+    col = 3
+  elif school_year == "2011":
+    col = 4
+  elif school_year == "2012":
+    col = 5
+  else:
+    print "8. ERROR! Not included in tha database"
+    return 0
 
+  for row in data:
+    try:
+      if row[2] == discipline:
+        if passers.has_key(row[1]):
+          passers[row[1]] += int(row[col])
+          takers[row[1]] += int(row[col+4])
+        else:
+          passers[row[1]] = int(row[col])
+          takers[row[1]] = int(row[col+4])
+    except Exception:
+      pass
+  for d in passers:
+    try:
+      if d != "-" and (passers[d]) != 0:
+        rate[d] = (float(takers[d] -  float(passers[d]))/float(takers[d]))
+    except Exception:
+      pass
+  print("8. list top 3 SUC with the most passing rate by discipline by school year")
+  print(" 1. %s") % ((sorted(rate.items(), key=lambda (n,m): (-m,n)))[0][0])
+  print(" 2. %s") % ((sorted(rate.items(), key=lambda (n,m): (-m,n)))[1][0])
+  print(" 3. %s") % ((sorted(rate.items(), key=lambda (n,m): (-m,n)))[2][0])  
 
 
 def main():
